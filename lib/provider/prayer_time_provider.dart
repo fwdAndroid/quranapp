@@ -77,4 +77,18 @@ class PrayerTimeProvider with ChangeNotifier {
       notifyListeners();
     }
   }
+
+  String getPrayerTime(String prayerName) {
+    final prayer = prayerTimes.firstWhere(
+      (p) => p.name == prayerName,
+      orElse: () =>
+          PrayerTime(name: prayerName, time: '--:--', isCurrent: false),
+    );
+    return prayer.time;
+  }
+
+  // Check if a prayer is the current prayer
+  bool isCurrentPrayer(String prayerName) {
+    return prayerTimes.any((p) => p.name == prayerName && p.isCurrent);
+  }
 }

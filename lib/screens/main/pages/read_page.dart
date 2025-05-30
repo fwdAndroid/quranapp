@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:hijri/hijri_calendar.dart';
+import 'package:provider/provider.dart';
+import 'package:quranapp/provider/prayer_time_provider.dart';
 import 'package:quranapp/screens/tab_pages/hijab_tab.dart';
 import 'package:quranapp/screens/tab_pages/page_tab.dart';
 import 'package:quranapp/screens/tab_pages/para_tab.dart';
@@ -14,7 +17,21 @@ class ReadPage extends StatefulWidget {
 
 class _ReadPageState extends State<ReadPage> {
   @override
+  void initState() {
+    super.initState();
+    // Load prayer times when the page initializes
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final provider = Provider.of<PrayerTimeProvider>(context, listen: false);
+      if (provider.prayerTimes.isEmpty) {
+        provider.loadLocationAndPrayerTimes();
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final provider = Provider.of<PrayerTimeProvider>(context);
+    final hijriDate = HijriCalendar.now(); // Get current Hijri date
     return DefaultTabController(
       length: 4,
       child: Scaffold(
@@ -27,7 +44,7 @@ class _ReadPageState extends State<ReadPage> {
               child: ClipPath(
                 clipper: CloudClipper(),
                 child: Container(
-                  height: 220,
+                  height: 255,
                   width: MediaQuery.of(context).size.width * 0.9,
                   padding: const EdgeInsets.symmetric(
                     vertical: 10,
@@ -59,13 +76,24 @@ class _ReadPageState extends State<ReadPage> {
                                   ),
                                 ),
                                 const SizedBox(height: 4),
-                                const Text(
-                                  '17 Safar 1436H',
-                                  style: TextStyle(
+                                Text(
+                                  '${hijriDate.hDay} ${hijriDate.longMonthName} ${hijriDate.hYear}H',
+                                  style: const TextStyle(
                                     color: Colors.white70,
                                     fontSize: 14,
                                   ),
                                 ),
+                                if (provider.currentLocation != null)
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 4.0),
+                                    child: Text(
+                                      provider.currentLocation!.name,
+                                      style: const TextStyle(
+                                        color: Colors.white70,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ),
                               ],
                             ),
                             Image.asset(
@@ -78,35 +106,55 @@ class _ReadPageState extends State<ReadPage> {
                       ),
 
                       /// Prayer times row
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: const [
-                          PrayerTimeWidget(
-                            title: 'Subuh',
-                            time: '04:25',
-                            icon: Icons.wb_cloudy,
-                          ),
-                          PrayerTimeWidget(
-                            title: 'Dzuhur',
-                            time: '11:46',
-                            icon: Icons.wb_sunny,
-                          ),
-                          PrayerTimeWidget(
-                            title: 'Ashar',
-                            time: '14:36',
-                            icon: Icons.cloud,
-                          ),
-                          PrayerTimeWidget(
-                            title: 'Maghrib',
-                            time: '17:51',
-                            icon: Icons.nightlight_round,
-                          ),
-                          PrayerTimeWidget(
-                            title: 'Isya',
-                            time: '18:59',
-                            icon: Icons.dark_mode,
-                          ),
-                        ],
+                      Padding(
+                        padding: const EdgeInsets.only(top: 16.0),
+                        child: provider.isLoading
+                            ? const Center(
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                ),
+                              )
+                            : provider.error != null
+                            ? Text(
+                                'Error: ${provider.error}',
+                                style: const TextStyle(color: Colors.white),
+                              )
+                            : Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
+                                children: [
+                                  _buildPrayerTime(
+                                    'Fajr',
+                                    provider.getPrayerTime('Fajr'),
+                                    Icons.wb_cloudy,
+                                    provider.isCurrentPrayer('Fajr'),
+                                  ),
+                                  _buildPrayerTime(
+                                    'Dhuhr',
+                                    provider.getPrayerTime('Dhuhr'),
+                                    Icons.wb_sunny,
+                                    provider.isCurrentPrayer('Dhuhr'),
+                                  ),
+                                  _buildPrayerTime(
+                                    'Asr',
+                                    provider.getPrayerTime('Asr'),
+                                    Icons.cloud,
+                                    provider.isCurrentPrayer('Asr'),
+                                  ),
+                                  _buildPrayerTime(
+                                    'Maghrib',
+                                    provider.getPrayerTime('Maghrib'),
+                                    Icons.nightlight_round,
+                                    provider.isCurrentPrayer('Maghrib'),
+                                  ),
+                                  _buildPrayerTime(
+                                    'Isha',
+                                    provider.getPrayerTime('Isha'),
+                                    Icons.dark_mode,
+                                    provider.isCurrentPrayer('Isha'),
+                                  ),
+                                ],
+                              ),
                       ),
                     ],
                   ),
@@ -134,6 +182,47 @@ class _ReadPageState extends State<ReadPage> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildPrayerTime(
+    String title,
+    String time,
+    IconData icon,
+    bool isCurrent,
+  ) {
+    return Column(
+      children: [
+        Text(
+          title,
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: isCurrent ? FontWeight.bold : FontWeight.normal,
+            fontSize: isCurrent ? 16 : 14,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          time,
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: isCurrent ? FontWeight.bold : FontWeight.normal,
+            fontSize: isCurrent ? 16 : 14,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Icon(icon, size: 20, color: isCurrent ? Colors.white : Colors.white70),
+        if (isCurrent)
+          Container(
+            margin: const EdgeInsets.only(top: 4),
+            width: 8,
+            height: 8,
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+            ),
+          ),
+      ],
     );
   }
 }
