@@ -18,7 +18,11 @@ class _MemoryPageState extends State<MemoryPage> {
         appBar: AppBar(
           title: Text('Memorize'),
           bottom: TabBar(
-            indicatorColor: Colors.greenAccent,
+            indicatorAnimation: TabIndicatorAnimation.linear,
+            indicatorSize: TabBarIndicatorSize.tab,
+            labelStyle: TextStyle(fontSize: 16),
+            labelColor: Color(0xFF1D3B2A),
+            indicatorColor: Color(0xFF1D3B2A),
             dividerColor: Colors.grey,
             tabs: [
               Tab(text: 'Dua'),
