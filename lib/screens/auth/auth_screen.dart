@@ -236,7 +236,14 @@ class _AuthScreenState extends State<AuthScreen> {
                 borderRadius: 20,
                 mode: SocialLoginButtonMode.multi,
                 buttonType: SocialLoginButtonType.google,
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const MainDashboard(),
+                    ),
+                  );
+                },
               ),
             ],
           ),
