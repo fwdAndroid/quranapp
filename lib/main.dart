@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:quranapp/firebase_options.dart';
 import 'package:quranapp/provider/language_provider.dart';
+import 'package:quranapp/provider/prayer_time_provider.dart';
 import 'package:quranapp/screens/splash_screen.dart';
 
 void main() async {
@@ -13,7 +14,10 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(
     MultiProvider(
-      providers: [ChangeNotifierProvider(create: (_) => LanguageProvider())],
+      providers: [
+        ChangeNotifierProvider(create: (_) => LanguageProvider()),
+        ChangeNotifierProvider(create: (context) => PrayerTimeProvider()),
+      ],
       child: const MyApp(),
     ),
   );
