@@ -71,7 +71,7 @@ class _QiblaPageState extends State<QiblaPage> {
             return QiblahCompass();
           else
             // Device does not support the sensor, Display Maps widget
-            return QiblahMaps();
+            return Center(child: Text("Your Device is Not Supported"));
         },
       ),
     );
