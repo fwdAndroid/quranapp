@@ -3,6 +3,7 @@ import 'package:quranapp/screens/tab_pages/hijab_tab.dart';
 import 'package:quranapp/screens/tab_pages/page_tab.dart';
 import 'package:quranapp/screens/tab_pages/para_tab.dart';
 import 'package:quranapp/screens/tab_pages/surah_tab.dart';
+import 'package:quranapp/widgets/drawer_widget.dart';
 
 class ReadPage extends StatefulWidget {
   const ReadPage({super.key});
@@ -17,6 +18,8 @@ class _ReadPageState extends State<ReadPage> {
     return DefaultTabController(
       length: 4,
       child: Scaffold(
+        appBar: AppBar(),
+        drawer: DrawerWidget(),
         body: Column(
           children: [
             const SizedBox(height: 20),
