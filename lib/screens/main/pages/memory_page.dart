@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:quranapp/screens/tab_pages/dua_tab.dart';
+import 'package:quranapp/screens/tab_pages/zikr_tab.dart';
 
 class MemoryPage extends StatefulWidget {
   const MemoryPage({super.key});
@@ -10,12 +12,21 @@ class MemoryPage extends StatefulWidget {
 class _MemoryPageState extends State<MemoryPage> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Text(
-          'Under Development',
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('Memorize'),
+          bottom: TabBar(
+            indicatorColor: Colors.greenAccent,
+            dividerColor: Colors.grey,
+            tabs: [
+              Tab(text: 'Dua'),
+              Tab(text: 'Zikr'),
+            ],
+          ),
         ),
+        body: TabBarView(children: [DuaTab(), ZikrTab()]),
       ),
     );
   }
