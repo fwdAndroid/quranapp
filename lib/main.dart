@@ -1,6 +1,8 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:quranapp/firebase_options.dart';
+import 'package:quranapp/provider/language_provider.dart';
 import 'package:quranapp/screens/splash_screen.dart';
 
 void main() async {
@@ -9,7 +11,12 @@ void main() async {
   // ...
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [ChangeNotifierProvider(create: (_) => LanguageProvider())],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {

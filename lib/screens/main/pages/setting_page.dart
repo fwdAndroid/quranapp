@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:quranapp/screens/setting/edit_profile.dart';
+import 'package:quranapp/screens/setting/language_setting.dart';
 import 'package:quranapp/widgets/logout_widget.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -41,6 +42,19 @@ class _SettingPageState extends State<SettingPage> {
                 trailing: Icon(Icons.arrow_forward_ios),
                 title: Text("Edit Profile"),
                 leading: Icon(Icons.person, color: Color(0xFF1D3B2A)),
+              ),
+            ),
+            Card(
+              child: ListTile(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (builder) => ChangeLangage()),
+                  );
+                },
+                trailing: Icon(Icons.arrow_forward_ios),
+                title: Text("Change Language"),
+                leading: Icon(Icons.language, color: Color(0xFF1D3B2A)),
               ),
             ),
             Card(
