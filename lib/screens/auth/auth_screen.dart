@@ -1,5 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:quranapp/screens/main/main_dashboard.dart';
+import 'package:quranapp/services/auth_services.dart';
 import 'package:social_login_buttons/social_login_buttons.dart';
 
 class AuthScreen extends StatefulWidget {
@@ -11,10 +13,66 @@ class AuthScreen extends StatefulWidget {
 
 class _AuthScreenState extends State<AuthScreen> {
   bool isLogin = true;
+  final AuthService _authService =
+      AuthService(); // Create auth service instance
+  bool isLoading = false; // Loading state
 
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final usernameController = TextEditingController();
+
+  void _handleAuth() async {
+    setState(() => isLoading = true);
+
+    try {
+      User? user;
+
+      if (isLogin) {
+        user = await _authService.signInWithEmailPassword(
+          emailController.text.trim(),
+          passwordController.text.trim(),
+        );
+      } else {
+        user = await _authService.registerWithEmailPassword(
+          emailController.text.trim(),
+          passwordController.text.trim(),
+          usernameController.text.trim(),
+        );
+      }
+
+      if (user != null) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const MainDashboard()),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.toString())));
+    } finally {
+      setState(() => isLoading = false);
+    }
+  }
+
+  void _handleGoogleSignIn() async {
+    setState(() => isLoading = true);
+    try {
+      User? user = await _authService.signInWithGoogle();
+      if (user != null) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const MainDashboard()),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Google sign-in failed: $e')));
+    } finally {
+      setState(() => isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -182,44 +240,7 @@ class _AuthScreenState extends State<AuthScreen> {
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                    onPressed: () {
-                      // Validation logic
-                      if (isLogin) {
-                        if (emailController.text.trim().isEmpty ||
-                            passwordController.text.trim().isEmpty) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                'Please fill in email and password.',
-                              ),
-                              duration: Duration(seconds: 2),
-                            ),
-                          );
-                          return;
-                        }
-                        // Handle login
-                        debugPrint("Logging in: ${emailController.text}");
-                      } else {
-                        if (emailController.text.trim().isEmpty ||
-                            passwordController.text.trim().isEmpty ||
-                            usernameController.text.trim().isEmpty) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Please fill in all fields.'),
-                              duration: Duration(seconds: 2),
-                            ),
-                          );
-                          return;
-                        }
-                        // Handle registration
-                      }
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const MainDashboard(),
-                        ),
-                      );
-                    },
+                    onPressed: isLoading ? null : _handleAuth,
                     child: Text(
                       isLogin ? "Sign in" : "Register",
                       style: TextStyle(color: Colors.white),
@@ -236,14 +257,7 @@ class _AuthScreenState extends State<AuthScreen> {
                 borderRadius: 20,
                 mode: SocialLoginButtonMode.multi,
                 buttonType: SocialLoginButtonType.google,
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const MainDashboard(),
-                    ),
-                  );
-                },
+                onPressed: isLoading ? null : _handleGoogleSignIn,
               ),
             ],
           ),
